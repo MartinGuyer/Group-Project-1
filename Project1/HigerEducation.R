@@ -12,7 +12,7 @@ library(scales)
 # WAGP: Wage or salary income
 # RAC1P: race,  1-9. 
 
-setwd("/home/zhuob/BigComp/SimpleData")
+setwd("/home/zhuob/Group-Project-1/Project1/Results")
 
 ##  big <- read.table("AllStates.txt", header=T)# read data
 ##  saveRDS(big, "/home/zhuob/BigComp/SimpleData/allstates.rds")
@@ -163,34 +163,70 @@ head(pro)
 
 
 ##Avg salary for educ level 19 by state
-filt<-filter(All_df,SCHL==19)
+filt<-filter(All_df,SCHL==19& ST != 11)
 group<-group_by(filt, ST)
 summarise(group,avg.salary_19=mean(WAGP,na.rm=TRUE))
+
+
+
+#--------------------------I modified the following code-----------------------
 
 ##function to compute avg salary for educ level
 wage_educ<-function(x)
 { 
-  schl_x<-filter(All_df,SCHL == x)  ##filter tirst by edu level
+  schl_x<-filter(All_df,SCHL == x & ST!= 11)  
+  ##filter tirst by edu level, and delete DC
   group_x<-group_by(schl_x,ST) # group by state
-  avg.salary_19<-summarise(group_x,avg.salary_19=mean(WAGP,na.rm=TRUE))
-  return(avg.salary_19)
-  
+ # colname <- paste("ave.salary", x)
+  table<-summarise(group_x, colname=mean(WAGP,na.rm=TRUE))
+  colnames(table)[2] <- paste("ave.salary", x)
+ return(table)
 }
+
+
+wage_educ(22)
 ###Average salary for each education level by state
 ##the function create double ST var for each educ level and the same var name
-result<-data.frame(cbind(State,wage_educ(19) ,wage_educ(20),wage_educ(21),wage_educ(22),wage_educ(23),wage_educ(24)))
-head(result1)
+result<-cbind(state,wage_educ(19), wage_educ(20),
+                         wage_educ(21), wage_educ(22),
+                         wage_educ(23),wage_educ(24))
+head(result)
+result$state <- as.character(result$state)
 
 ##here is code to delete the doublon of ST
 result1<-result[,-c(4,6,8,10,12)]
+## this table contains ave.salary at all educational levels
+head(result1)
+result1
 
-##renaming the columns
-colnames(result1)[3]<-'avg.salary_19'
-colnames(result1)[4]<-'avg.salary_20'
-colnames(result1)[5]<-'avg.salary_21'
-colnames(result1)[6]<-'avg.salary_22'
-colnames(result1)[7]<-'avg.salary_23'
-colnames(result1)[8]<-'avg.salary_24'
+### to answer the question 
+## Which of these educational degrees has the highest average salary for each state?
+
+salary <- index <- rep(0, dim(result1)[1])
+
+
+for ( i in 1:length(index))
+{
+  result1$salary[i] <- max(result1[i, 3:8]) # find the maximum income
+  # locate the education level corresponding to max wage
+  result1$index[i] <-  max.col(result[i, 3:8]) + 2
+ }
+
+#-------------------------------------------------------------------------------------------
+#                                                                                         ##      
+## it looks wield, since that for every state, education level 23 has the highest         ##  
+# average income, someone help me to figure out possible errors in my code??              ##
+#                                                                                         ##    
+#-----------------------------------------------------------------------------------------##
+
+
+salary_map <- inner_join(result1, usa_df, by ="state") 
+qplot(reorder(state, salary), salary, data = salary_map, xlab="State",
+      main= "Highest income by state/educational level")
+
+
+##-------------------------- My code ends here --------------- Bin------
+head(result1)
 head(result1)
 result0<-cbind(result1,pro$prop_nowhite)
 colnames(result0)[9]<-'prop_nonwhite'
