@@ -141,6 +141,11 @@ qplot(x, y, data = t2, main= decode(4),
       geom = "polygon", group = group, fill = percent )+  
   coord_equal()
 
+
+
+
+
+
 ###q3: What proportion of people in each state are non-white? ######
 getwd()
 setwd("C:/Users/Acer/Documents/OSU/ST 599/BigComp")
@@ -165,16 +170,16 @@ summarise(group,avg.salary_19=mean(WAGP,na.rm=TRUE))
 ##function to compute avg salary for educ level
 wage_educ<-function(x)
 { 
-    schl_x<-filter(All_df,SCHL == x)  ##filter tirst by edu level
-    group_x<-group_by(schl_x,ST) # group by state
-    avg.salary_19<-summarise(group_x,avg.salary_19=mean(WAGP,na.rm=TRUE))
+  schl_x<-filter(All_df,SCHL == x)  ##filter tirst by edu level
+  group_x<-group_by(schl_x,ST) # group by state
+  avg.salary_19<-summarise(group_x,avg.salary_19=mean(WAGP,na.rm=TRUE))
   return(avg.salary_19)
   
-     }
+}
 ###Average salary for each education level by state
 ##the function create double ST var for each educ level and the same var name
-result<-data.frame(cbind(State,wage_educ(19) ,wage_educ(20),wage_educ(20),wage_educ(22),wage_educ(23),wage_educ(24)))
-head(result)
+result<-data.frame(cbind(State,wage_educ(19) ,wage_educ(20),wage_educ(21),wage_educ(22),wage_educ(23),wage_educ(24)))
+head(result1)
 
 ##here is code to delete the doublon of ST
 result1<-result[,-c(4,6,8,10,12)]
@@ -193,10 +198,36 @@ head(result0)
 
 ###plotting
 library(ggplot2)
-qplot(as.factor(State),prop_nonwhite,data=result0,geom = "jitter",size = I(2))+
+qplot(reorder(State,prop_nonwhite),prop_nonwhite,data=result0,
+      xlab='State', ylab='Proportion' ,geom = "jitter",size = I(2))+
   ggtitle("Proportion of non white by state") 
 
-qplot(State,avg.salary_24,data=result0,size=I(2))+
-  ggtitle("Avg salary for education level 24 by state") 
- #point(State,avg.salary_23,data=result0)
-#ggplot(result0,aes(x=factor(""),fill=State))+geom_bar()
+qplot(reorder(State,avg.salary_19),avg.salary_19,xlab='State',ylab='Average Salary',data=result0,size=I(2))+
+  ggtitle("Individual with one or more years of college credit, no degree ") 
+#
+qplot(reorder(State,avg.salary_20),avg.salary_20,xlab='State',ylab='Average Salary',data=result0,size=I(2))+
+  ggtitle("Individual with Associate's degree")
+#
+qplot(reorder(State,avg.salary_21),avg.salary_21,xlab='State',ylab='Average Salary',data=result0,size=I(2))+
+  ggtitle("Individual with Bachelor's degree")
+#
+qplot(reorder(State,avg.salary_22),avg.salary_22,xlab='State',ylab='Average Salary',data=result0,size=I(2))+
+  ggtitle("Individual with Master's degree ")
+#
+qplot(reorder(State,avg.salary_23),avg.salary_23,xlab='State',ylab='Average Salary',data=result0,size=I(2))+
+  ggtitle("Individual with Professional degree beyond a bachelor's degree")
+#
+qplot(reorder(State,avg.salary_24),avg.salary_24,xlab='State',ylab='Average Salary', data=result0,size=I(2))+
+  ggtitle("Individual with Doctorate degree")
+
+
+#exporting output-result0 into csv
+write.csv(result0, file="C:/Users/Acer/Documents/OSU/ST 599/BigComp/result01.csv",
+          col.names = T)
+#3educ level
+#19: 
+
+
+
+
+
